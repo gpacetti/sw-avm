@@ -12,7 +12,7 @@ jobs:
       - name: Checkout Target Repository
         uses: actions/checkout@v3
         with:
-          persist-credentials: false  # Use PAT for authentication
+          persist-credentials: true  # Use PAT for authentication
 
       - name: Configure Git
         run: |
@@ -21,7 +21,7 @@ jobs:
 
       - name: Add Source Repository Remote
         run: |
-          git remote add source https://github.com/<SOURCE_ORG>/<SOURCE_REPO>.git
+          git remote add source https://github.com/Azure/bicep-registry-modules.git
           git fetch source
 
       - name: Check for New Commits
