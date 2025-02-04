@@ -1,0 +1,44 @@
+name: Sync Repository
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"  # Runs every 6 hours
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Target Repository
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false  # Use PAT for authentication
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add Source Repository Remote
+        run: |
+          git remote add source https://github.com/<SOURCE_ORG>/<SOURCE_REPO>.git
+          git fetch source
+
+      - name: Check for New Commits
+        id: check_updates
+        run: |
+          LOCAL=$(git rev-parse HEAD)
+          REMOTE=$(git rev-parse source/main)  # Change branch if needed
+          if [ "$LOCAL" != "$REMOTE" ]; then
+            echo "New changes detected!"
+            echo "sync_required=true" >> $GITHUB_ENV
+          else
+            echo "No new changes."
+            echo "sync_required=false" >> $GITHUB_ENV
+          fi
+
+      - name: Sync and Push to Target Repo
+        if: env.sync_required == 'true'
+        run: |
+          git pull source main --rebase  # Merge latest changes
+          git push https://x-access-token:${{ secrets.PAT_GITHUB }}@github.com/<TARGET_ORG>/<TARGET_REPO>.git main --force
