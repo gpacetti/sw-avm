@@ -41,4 +41,4 @@ jobs:
         if: env.sync_required == 'true'
         run: |
           git pull source main --rebase  # Merge latest changes
-          git push https://x-access-token:${{ secrets.PAT_GITHUB }}@github.com/<TARGET_ORG>/<TARGET_REPO>.git main --force
+          git push https://x-access-token:${{ secrets.PAT_GITHUB }}@github.com/gpacetti/sw-avm.git main --force
